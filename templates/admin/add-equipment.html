@@ -1,0 +1,211 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Add Equipment - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Add Equipment{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>Add Equipment</h1>
+        <p id="equipmentSubtitle">Register new equipment to the system</p>
+    </div>
+    <form id="addEquipmentForm" class="equipment-form">
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Basic Information
+            </h3>
+            <div class="form-group">
+                <label for="equipmentName">Equipment Name</label>
+                <input type="text" id="equipmentName" name="name" placeholder="e.g., Dell XPS 13 Laptop" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="equipmentCategory">Category</label>
+                    <select id="equipmentCategory" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Computing">Computing</option>
+                        <option value="Laboratory">Laboratory</option>
+                        <option value="Photography">Photography</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Machinery">Machinery</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="equipmentLocation">Location</label>
+                    <input type="text" id="equipmentLocation" name="location"
+                        placeholder="e.g., Lab Building A, Room 101" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="equipmentDescription">Description</label>
+                <textarea id="equipmentDescription" name="description"
+                    placeholder="Enter detailed description of the equipment..." rows="4"></textarea>
+            </div>
+        </div>
+        <!-- Equipment Image Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                Equipment Image
+            </h3>
+            <div class="form-group">
+                <label for="equipmentImage">Upload Image</label>
+                <input type="file" id="equipmentImage" name="image" accept="image/*" onchange="previewImage(event)">
+                <small class="form-help">Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</small>
+            </div>
+            <div id="imagePreviewContainer" class="image-preview-container" style="display:none;">
+                <img id="imagePreview" src="" alt="Equipment preview" class="image-preview">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="removeImage()">Remove Image</button>
+            </div>
+        </div>
+        <!-- Quantity Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M2 12h20"></path>
+                    <path d="M5 9h14v6H5z"></path>
+                </svg>
+                Quantity Information
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="equipmentQuantity">Total Quantity</label>
+                    <input type="number" id="equipmentQuantity" name="quantity" min="1" placeholder="e.g., 5" required>
+                </div>
+                <div class="form-group">
+                    <label for="equipmentAvailable">Available Quantity</label>
+                    <input type="number" id="equipmentAvailable" name="quantity_available" min="0" placeholder="e.g., 3"
+                        required>
+                </div>
+            </div>
+        </div>
+        <!-- Status Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Status & Maintenance
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="equipmentStatus">Equipment Status</label>
+                    <select id="equipmentStatus" name="status" required>
+                        <option value="">Select Status</option>
+                        <option value="Available">Available</option>
+                        <option value="Reserved">Reserved</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Damaged">Damaged</option>
+                        <option value="Retired">Retired</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="lastMaintenance">Last Maintenance Date</label>
+                    <input type="date" id="lastMaintenance" name="last_maintenance">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="maintenanceInterval">Maintenance Interval (days)</label>
+                <input type="number" id="maintenanceInterval" name="maintenance_interval" min="1"
+                    placeholder="e.g., 90">
+            </div>
+        </div>
+        <!-- QR Code Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="2" height="2"></rect>
+                </svg>
+                QR Code
+            </h3>
+            <div class="qrcode-section">
+                <div id="qrcodeDisplay" class="qrcode-display">
+                    <div class="placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="2" height="2"></rect>
+                        </svg>
+                        <p>QR Code will be generated</p>
+                    </div>
+                </div>
+                <input type="hidden" id="equipmentQRCode" name="qrcode">
+                <button type="button" class="btn btn-secondary" onclick="generateQRCode()">Generate QR Code</button>
+            </div>
+        </div>
+        <!-- Metadata Section -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Equipment Metadata
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="createdBy">Created By</label>
+                    <input type="text" id="createdBy" name="created_by" placeholder="e.g., John Admin" required>
+                </div>
+                <div class="form-group">
+                    <label for="createdAt">Created At</label>
+                    <input type="datetime-local" id="createdAt" name="created_at" readonly>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="updatedAt">Last Updated At</label>
+                    <input type="datetime-local" id="updatedAt" name="updated_at" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="statusMeta">Status</label>
+                    <input type="text" id="statusMeta" value="Automatically updated on save" readonly>
+                </div>
+            </div>
+        </div>
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="goBackToEquipment()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Equipment</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block modals %}
+<!-- Success Modal -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-overlay" onclick="closeModal('successModal')"></div>
+    <div class="modal-content">
+        <div class="modal-icon success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <h2>Equipment Added Successfully</h2>
+        <p id="successMessage">The new equipment has been registered in the system.</p>
+        <a href="{{ url_for('admin_equipment') }}" class="btn btn-primary">Back to Equipment</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/add-equipment.js') }}"></script>
+{% endblock %}

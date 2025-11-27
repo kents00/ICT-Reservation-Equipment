@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Equipment Reservation System{% endblock %}</title>
+
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Admin Stylesheet -->
+    {% block stylesheets %}
+    {% endblock %}
+
+    <!-- Additional head content (for CDN scripts, etc) -->
+    {% block additional_head %}
+    {% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+
+    <!-- Scripts -->
+    {% block scripts %}
+    {% endblock %}
+</body>
+
+</html>

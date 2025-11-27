@@ -1,0 +1,192 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Dashboard - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, Admin! Here's your equipment overview.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon equipment">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="9" y2="15"></line>
+                    <line x1="15" y1="9" x2="15" y2="15"></line>
+                    <line x1="9" y1="12" x2="15" y2="12"></line>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Total Equipment</p>
+                <h3 class="stat-number" id="total-equipment">{{ total_equipment or 0 }}</h3>
+                <span class="stat-change positive">+5 this week</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon available">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Available</p>
+                <h3 class="stat-number" id="available-equipment">{{ available_equipment or 0 }}</h3>
+                <span class="stat-change positive">
+                    {% if total_equipment > 0 %}
+                    {{ (available_equipment / total_equipment * 100)|round|int }}% available
+                    {% else %}
+                    0% available
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon reserved">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z">
+                    </path>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Reserved</p>
+                <h3 class="stat-number" id="reserved-equipment">0</h3>
+                <span class="stat-change neutral">Loading...</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon maintenance">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z">
+                    </path>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <p class="stat-label">Maintenance</p>
+                <h3 class="stat-number" id="maintenance-equipment">0</h3>
+                <span class="stat-change negative">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-card">
+            <h3>Equipment Status Distribution</h3>
+            <div class="pie-chart-container">
+                {% if total_equipment > 0 %}
+                <svg viewBox="0 0 200 200" class="pie-chart-svg">
+                    <!-- Initial pie chart will be rendered by JavaScript -->
+                    <circle cx="100" cy="100" r="70" fill="#34C759" opacity="0.9" />
+                    <circle cx="100" cy="100" r="35" fill="white" />
+                    <text x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-size="24"
+                        font-weight="bold" fill="#333">{{ total_equipment }}</text>
+                </svg>
+                {% else %}
+                <div class="no-data">No Data Found</div>
+                {% endif %}
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #34C759;"></span>
+                    <span>Available (<span id="legend-available">0</span>)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #818cf8;"></span>
+                    <span>Reserved (<span id="legend-reserved">0</span>)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #fb923c;"></span>
+                    <span>Maintenance (<span id="legend-maintenance">0</span>)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Reservations This Month</h3>
+            <div class="reservations-chart-container">
+                <div class="no-data">Loading...</div>
+            </div>
+            <div class="chart-legend" style="margin-top: 18px;">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #f59e0b;"></span>
+                    <span>Pending</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #34C759;"></span>
+                    <span>Approved</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #818cf8;"></span>
+                    <span>Checked Out</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+        <h3>Recent Activity</h3>
+        <div class="activity-list">
+            {% if recent_activities %}
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <div class="activity-icon {{ activity.type }}">
+                    {% if activity.type == 'new' %}
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S15.33 8 14.5 8 13 8.67 13 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S8.33 8 7.5 8 6 8.67 6 9.5 6.67 11 7.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z">
+                        </path>
+                    </svg>
+                    {% elif activity.type == 'approval' %}
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z">
+                        </path>
+                    </svg>
+                    {% elif activity.type == 'returned' %}
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                    </svg>
+                    {% endif %}
+                </div>
+                <div class="activity-content">
+                    <p><strong>{{ activity.title }}</strong> - {{ activity.description }}</p>
+                    <span class="activity-time">{{ activity.time }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="activity-item">
+                <div class="activity-icon new">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S15.33 8 14.5 8 13 8.67 13 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S8.33 8 7.5 8 6 8.67 6 9.5 6.67 11 7.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <p><strong>New Equipment Added</strong> - Laptop Dell XPS 13</p>
+                    <span class="activity-time">2 hours ago</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

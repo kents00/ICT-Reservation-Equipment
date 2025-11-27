@@ -1,0 +1,117 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}View User - Equipment Reservation System{% endblock %}
+
+{% block page_title %}View User{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>View User</h1>
+        <p>User details and information</p>
+    </div>
+
+    <div class="view-user-container">
+        <div class="user-details" id="userDetails">
+            <!-- Profile Image Section -->
+            <div class="form-section" style="text-align: center; padding: 2rem;">
+                <div id="userAvatarContainer" style="display: inline-block; position: relative;">
+                    <img id="userAvatar" src="" alt="User Avatar"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #007AFF; display: none;">
+                    <div id="userAvatarPlaceholder"
+                        style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 48px; border: 4px solid #007AFF;">
+                        --
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Personal Information
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name:</label>
+                        <p id="userFirstName">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Middle Name:</label>
+                        <p id="userMiddleName">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name:</label>
+                        <p id="userLastName">Loading...</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <p id="userEmail">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone:</label>
+                        <p id="userPhone">Loading...</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department:</label>
+                        <p id="userDepartment">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Student ID:</label>
+                        <p id="userStudentId">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <path
+                            d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m3.08-3.08l4.24-4.24">
+                        </path>
+                    </svg>
+                    Account Information
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <p id="userUsername">Loading...</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role:</label>
+                        <p id="userRole">Loading...</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <p id="userStatus">Loading...</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Created At:</label>
+                        <p id="userCreatedAt">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/admin/users" class="btn btn-secondary">Back to Users</a>
+            <a id="editUserBtn" href="#" class="btn btn-primary">Edit User</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/view-user.js') }}"></script>
+{% endblock %}

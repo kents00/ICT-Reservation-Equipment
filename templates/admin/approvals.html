@@ -1,0 +1,82 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Approvals - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Approvals{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>Approvals & Return Verifications</h1>
+        <p>Review pending reservations and verify equipment returns</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="equipment-toolbar">
+        <div class="search-group">
+            <input type="text" id="approvalSearch" class="search-input"
+                placeholder="Search by user, equipment, or ID...">
+            <span class="search-icon"><i class="fa fa-search"></i></span>
+        </div>
+        <div class="filter-group">
+            <select id="equipmentNameFilter" class="filter-select">
+                <option value="">All Equipment</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Approvals Table -->
+    <div class="approvals-section">
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Reservation ID</th>
+                        <th>User</th>
+                        <th>Equipment</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="approvalsTable">
+                    <!-- Table rows will be rendered by approvals.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Rejection Reason Modal -->
+<div id="rejectionModal" class="modal"
+    style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
+    <div class="modal-content"
+        style="background: white; border-radius: 8px; padding: 1.5rem; max-width: 500px; width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header"
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 0.75rem;">
+            <h2 style="margin: 0; font-size: 1.25rem;">Reject Reservation</h2>
+            <button type="button" class="modal-close" onclick="closeRejectionModal()" aria-label="Close"
+                style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: #666; line-height: 1; padding: 0;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 0.75rem; color: #555; text-align: center;">Please provide a reason for rejecting
+                this reservation:</p>
+            <textarea id="rejectionReason" rows="4"
+                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95rem; resize: vertical; display: block; margin: 0 auto;"
+                placeholder="Enter rejection reason..."></textarea>
+        </div>
+        <div class="modal-footer" style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+            <button class="btn btn-secondary" onclick="closeRejectionModal()"
+                style="padding: 0.5rem 1rem;">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmRejection()" style="padding: 0.5rem 1rem;">Reject
+                Reservation</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/approvals.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Reservations - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Reservations{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>Reservations</h1>
+        <p>View and manage equipment reservations</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="equipment-toolbar">
+        <div class="search-group">
+            <input type="text" id="reservationSearch" class="search-input"
+                placeholder="Search by user, equipment, or ID...">
+            <span class="search-icon"><i class="fa fa-search"></i></span>
+        </div>
+        <div class="filter-group">
+            <select id="equipmentNameFilter" class="filter-select">
+                <option value="">All Equipment</option>
+            </select>
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="checked_out">Checked Out</option>
+                <option value="return_pending">Return Pending</option>
+                <option value="returned">Returned</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Reservations Table -->
+    <div class="reservations-section">
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Reservation ID</th>
+                        <th>User</th>
+                        <th>Equipment</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reservationsTable">
+                    <!-- Table rows will be rendered by reservations.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/reservations.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'admin/layout.html' %}
+{% block page_title %}Notifications{% endblock %}
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <div>
+            <h1>Recent Notifications</h1>
+            <p>Stay updated with all system activities and alerts</p>
+        </div>
+        <div class="notification-filters">
+            <button class="filter-btn active" onclick="filterNotifications('all')">All</button>
+            <button class="filter-btn" onclick="filterNotifications('new')">New</button>
+            <button class="filter-btn" onclick="filterNotifications('approved')">Approved</button>
+            <button class="filter-btn" onclick="filterNotifications('equipment')">Equipment</button>
+            <button class="filter-btn" onclick="filterNotifications('system')">System</button>
+        </div>
+    </div>
+
+    <div class="notifications-list" id="notifications-list">
+        <!-- Notifications will be loaded here by JS -->
+    </div>
+    <div id="no-notifications" style="display:none;">
+        <p>No notifications found.</p>
+    </div>
+</section>
+<script src="/static/js/notifications.js"></script>
+{% endblock %}

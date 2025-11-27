@@ -1,0 +1,10 @@
+admin_dashboard
+env
+env_new
+__pycache__
+*.pyc
+instance
+uploads/
+.env
+htmlcov/
+.coverage

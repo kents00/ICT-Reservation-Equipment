@@ -1,0 +1,98 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Edit Admin Profile - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Edit Admin Profile{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>Edit Admin Profile</h1>
+        <p>Update your admin profile information</p>
+    </div>
+
+    <div class="edit-user-container">
+        <form id="editAdminForm" class="user-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="admin-firstname">First Name *</label>
+                    <input type="text" id="admin-firstname" name="first_name" placeholder="First name"
+                        value="{{ admin.first_name or '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-lastname">Last Name *</label>
+                    <input type="text" id="admin-lastname" name="last_name" placeholder="Last name"
+                        value="{{ admin.last_name or '' }}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="admin-email">Email *</label>
+                    <input type="email" id="admin-email" name="email" placeholder="email@example.com"
+                        value="{{ admin.email or '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-phone">Phone Number</label>
+                    <input type="tel" id="admin-phone" name="phone" placeholder="+1 (555) 123-4567"
+                        value="{{ admin.phone or '' }}">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Change Password</h3>
+                <p class="form-section-note">Leave blank to keep current password</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="admin-current-password">Current Password</label>
+                        <input type="password" id="admin-current-password" name="current_password"
+                            placeholder="Enter current password">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="admin-new-password">New Password</label>
+                        <input type="password" id="admin-new-password" name="new_password"
+                            placeholder="Enter new password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admin-confirm-password">Confirm Password</label>
+                        <input type="password" id="admin-confirm-password" name="confirm_password"
+                            placeholder="Confirm new password">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block modals %}
+<!-- Success Modal -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-overlay" onclick="closeModal('successModal')"></div>
+    <div class="modal-content">
+        <svg class="modal-icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <h3>Success</h3>
+        <p id="modalMessage">Admin profile updated successfully!</p>
+        <button class="btn btn-primary" onclick="goBackToDashboard()">Close</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='admin_dashboard/js/edit-admin.js') }}"></script>
+{% endblock %}

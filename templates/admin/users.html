@@ -1,0 +1,108 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Users Management - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Users Management{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>Users Management</h1>
+        <p>Manage system users and their roles</p>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="users-section">
+        <div class="filters-bar" style="display: flex; gap: 16px; align-items: center; margin-bottom: 18px;">
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="userSearchInput" class="form-control"
+                    placeholder="Search by name, email, or ID..." style="width: 100%; padding-left: 32px;">
+                <span style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #888;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </span>
+            </div>
+            <select id="departmentFilter" class="form-control" style="min-width: 280px;">
+                <option value="">All Courses</option>
+                <option value="Bachelor of Science in Marine Biology">Bachelor of Science in Marine Biology</option>
+                <option value="Bachelor of Science in Information Technology">Bachelor of Science in Information
+                    Technology</option>
+                <option value="Bachelor of Technology and Livelihood Education in Industrial Arts">Bachelor of
+                    Technology and Livelihood Education in Industrial Arts</option>
+                <option value="Bachelor of Technology and Livelihood Education in Home Economics">Bachelor of Technology
+                    and Livelihood Education in Home Economics</option>
+            </select>
+            <select id="statusFilter" class="form-control" style="min-width: 140px;">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
+                <!-- Add more statuses as needed -->
+            </select>
+        </div>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Avatar</th>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Student ID</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    {% if users %}
+                    {% for user in users %}
+                    {% if user.role == 'student' %}
+                    <tr>
+                        <td>
+                            {% if user.image_url %}
+                            <img src="{{ user.image_url }}" alt="{{ user.first_name }}"
+                                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                            <div
+                                style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
+                                {{ user.first_name[0]|upper }}{{ user.last_name[0]|upper }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ user.first_name }} {% if user.middle_name %}{{ user.middle_name }} {% endif %}{{
+                                user.last_name }}</strong></td>
+                        <td>{{ user.student_id or '-' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.department or '-' }}</td>
+                        <td><span class="role-badge {{ user.role }}">{{ user.role|capitalize }}</span></td>
+                        <td><span class="status-badge {{ user.status }}">{{ user.status|capitalize }}</span></td>
+                        <td class="action-buttons">
+                            <a href="{{ url_for('admin_edit_user', user_id=user.id) }}"
+                                class="btn btn-sm btn-primary">Edit</a>
+                            <a href="{{ url_for('admin_view_user', user_id=user.id) }}"
+                                class="btn btn-sm btn-secondary">View</a>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                onclick="deleteUser('{{ user.id }}')">Delete</button>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No users found</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+{% endblock %}

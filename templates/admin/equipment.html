@@ -1,0 +1,102 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Equipment Management - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Equipment Management{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <div class="header-left">
+            <h1>Equipment Management</h1>
+            <p class="subtitle">Manage and track all equipment inventory</p>
+        </div>
+        <a href="{{ url_for('admin_add_equipment') }}" class="btn btn-primary">Add Equipment</a>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="equipment-toolbar">
+        <div class="search-group">
+            <input type="text" id="equipmentSearch" class="search-input"
+                placeholder="Search equipment by name, category, or serial number...">
+            <span class="search-icon"><i class="fa fa-search"></i></span>
+        </div>
+        <div class="filter-group">
+            <select id="categoryFilter" class="filter-select">
+                <option value="">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Photography">Photography</option>
+                <option value="Lab Equipment">Lab Equipment</option>
+                <option value="Tools">Tools</option>
+            </select>
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option value="available">Available</option>
+                <option value="reserved">Reserved</option>
+                <option value="checked_out">Checked Out</option>
+                <option value="maintenance">Maintenance</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Equipment Table (data loaded via API) -->
+    <div class="equipment-section">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Serial Number</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Qty</th>
+                        <th>Available</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="equipmentTable">
+                    <tr id="loadingRow">
+                        <td colspan="9" class="text-center">Loading equipment...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="equipmentPagination" class="pagination"></div>
+    </div>
+
+    <!-- Equipment Detail Modal -->
+    <div id="equipmentDetailModal" class="modal" style="display:none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="detailName">Equipment Details</h2>
+                <span id="modalClose" class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body" id="detailBody">
+                <div class="detail-grid">
+                    <div class="detail-section">
+                        <h3>Basic Information</h3>
+                        <p><strong>Description:</strong> <span id="detailDescription"></span></p>
+                        <p><strong>Category:</strong> <span id="detailCategory"></span></p>
+                        <p><strong>Serial Number:</strong> <span id="detailSerial"></span></p>
+                        <p><strong>Location:</strong> <span id="detailLocation"></span></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Status & Inventory</h3>
+                        <p><strong>Status:</strong> <span id="detailStatus" class="status-badge"></span></p>
+                        <p><strong>Total Quantity:</strong> <span id="detailQuantity"></span></p>
+                        <p><strong>Available:</strong> <span id="detailAvailable"></span></p>
+                        <p><strong>Active Reservations:</strong> <span id="detailActiveReservations"></span></p>
+                    </div>
+                </div>
+                <div class="detail-qr" id="detailQrImage"></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/equipment.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% block additional_stylesheets %}{% endblock %}
+{% endblock %}
+
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include "admin/includes/sidebar.html" %}
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% include "admin/includes/header.html" %}
+
+        <!-- Content Area -->
+        <div class="content-area">
+            {% block page_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+{% block modals %}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/header-search.js') }}"></script>
+{% block additional_scripts %}{% endblock %}
+{% endblock %}

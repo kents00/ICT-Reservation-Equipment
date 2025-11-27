@@ -1,0 +1,209 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Settings - Equipment Reservation System{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block page_content %}
+<section class="section active">
+    <div class="section-header">
+        <h1>System Settings</h1>
+        <p>Configure system-wide settings and preferences</p>
+    </div>
+    <form id="settingsForm" class="settings-form">
+        <!-- General Settings Section -->
+        <div class="form-section card">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align:middle;width:1.2em;height:1.2em;margin-right:6px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4M12 8h.01"></path>
+                </svg>
+                General Settings
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="system-name">System Name</label>
+                    <input type="text" id="system-name"
+                        value="{{ settings.system_name or 'Equipment Reservation System' }}">
+                </div>
+                <div class="form-group">
+                    <label for="system-description">System Description</label>
+                    <textarea id="system-description" rows="2">{{ settings.description or '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Account Section -->
+        <div class="form-section card">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align:middle;width:1.2em;height:1.2em;margin-right:6px;">
+                    <circle cx="12" cy="7" r="4"></circle>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                </svg>
+                Admin Account
+            </h3>
+
+            <!-- Admin Profile Image -->
+            <div class="form-row" style="justify-content: center; margin-bottom: 2rem;">
+                <div class="form-group" style="text-align: center;">
+                    <label style="display: block; margin-bottom: 1rem;">Profile Picture</label>
+                    <div style="display: inline-block; position: relative;">
+                        <img id="admin-profile-preview" src="{{ admin.image_url if admin and admin.image_url else '' }}"
+                            alt="Admin Profile"
+                            style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #007AFF; display: {{ 'block' if admin and admin.image_url else 'none' }};">
+                        <div id="admin-profile-placeholder"
+                            style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: {{ 'none' if admin and admin.image_url else 'flex' }}; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 40px; border: 3px solid #007AFF; margin: 0 auto;">
+                            {{ admin.first_name[0]|upper if admin and admin.first_name else 'A' }}{{
+                            admin.last_name[0]|upper if admin and admin.last_name else 'D' }}
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <input type="file" id="admin-profile-image" name="profile_image" accept="image/*"
+                            style="display: none;">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('admin-profile-image').click();">
+                            Change Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="admin-username">Username</label>
+                    <input type="text" id="admin-username" value="{{ admin.username if admin else '' }}"
+                        placeholder="Admin username">
+                </div>
+                <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input type="email" id="admin-email" value="{{ admin.email if admin else '' }}"
+                        placeholder="Admin email">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="admin-firstname">First Name</label>
+                    <input type="text" id="admin-firstname" value="{{ admin.first_name if admin else '' }}"
+                        placeholder="First name">
+                </div>
+                <div class="form-group">
+                    <label for="admin-middlename">Middle Name</label>
+                    <input type="text" id="admin-middlename" value="{{ admin.middle_name if admin else '' }}"
+                        placeholder="Middle name">
+                </div>
+                <div class="form-group">
+                    <label for="admin-lastname">Last Name</label>
+                    <input type="text" id="admin-lastname" value="{{ admin.last_name if admin else '' }}"
+                        placeholder="Last name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="admin-phone">Phone</label>
+                    <input type="tel" id="admin-phone" value="{{ admin.phone if admin else '' }}"
+                        placeholder="Phone number">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="admin-password">New Password</label>
+                    <input type="password" id="admin-password" value="" placeholder="New password">
+                </div>
+                <div class="form-group">
+                    <label for="admin-password-confirm">Confirm Password</label>
+                    <input type="password" id="admin-password-confirm" value="" placeholder="Confirm new password">
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservation Settings Section -->
+        <div class="form-section card">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align:middle;width:1.2em;height:1.2em;margin-right:6px;">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4M8 2v4M3 10h18"></path>
+                </svg>
+                Reservation Settings
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="max-duration">Maximum Reservation Duration (days)</label>
+                    <input type="number" id="max-duration" value="{{ settings.max_reservation_duration or 30 }}">
+                </div>
+                <div class="form-group">
+                    <label for="max-advance">Maximum Advance Booking (days)</label>
+                    <input type="number" id="max-advance" value="{{ settings.max_advance_booking or 90 }}">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" {% if settings.require_approval %}checked{% endif %}>
+                        Require approval for reservations
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Settings Section -->
+        <div class="form-section card">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align:middle;width:1.2em;height:1.2em;margin-right:6px;">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                Notification Settings
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" {% if settings.email_notifications %}checked{% endif %}>
+                        Enable email notifications
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" {% if settings.sms_notifications %}checked{% endif %}>
+                        Enable SMS notifications
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings Section -->
+        <div class="form-section card">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="vertical-align:middle;width:1.2em;height:1.2em;margin-right:6px;">
+                    <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Security Settings
+            </h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="session-timeout">Session Timeout (minutes)</label>
+                    <input type="number" id="session-timeout" value="{{ settings.session_timeout or 30 }}">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" {% if settings.two_factor_auth %}checked{% endif %}>
+                        Require two-factor authentication
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}
