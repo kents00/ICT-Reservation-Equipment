@@ -98,9 +98,12 @@ function renderUsersTable(users) {
         const fullName = `${escapeHtml(user.first_name)} ${user.middle_name ? escapeHtml(user.middle_name) + ' ' : ''}${escapeHtml(user.last_name)}`;
         const initials = `${user.first_name?.charAt(0) || ''}${user.last_name?.charAt(0) || ''}`.toUpperCase();
 
-        // Create avatar HTML
+        // Create avatar HTML - prioritize base64 image, fall back to image_url, then initials
         let avatarHtml;
-        if (user.image_url) {
+        if (user.image_base64) {
+            avatarHtml = `<img src="${escapeHtml(user.image_base64)}" alt="${escapeHtml(user.first_name)}"
+                              style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+        } else if (user.image_url) {
             avatarHtml = `<img src="${escapeHtml(user.image_url)}" alt="${escapeHtml(user.first_name)}"
                               style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
         } else {
