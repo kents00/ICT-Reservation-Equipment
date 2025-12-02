@@ -373,6 +373,8 @@ def create_app(config_name='development'):
     return app
 
 
+# Create app instance for gunicorn and direct execution
+app = create_app('development')
+
 if __name__ == '__main__':
-    app = create_app('development')
     socketio.run(app, debug=True, host='0.0.0.0', port=5000)

@@ -88,7 +88,7 @@ pip install --no-cache-dir --prefer-binary -r requirements-prod.txt
 
 ### Error: "Metadata generation failed"
 
-**Solution**: 
+**Solution**:
 1. Use `requirements-prod.txt` instead of `requirements.txt`
 2. Check that all pinned versions have Python 3.13 binary wheels available
 3. Use `--prefer-binary` flag
