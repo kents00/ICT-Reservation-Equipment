@@ -374,7 +374,12 @@ def create_app(config_name='development'):
 
 
 # Create app instance for gunicorn and direct execution
-app = create_app('development')
+# Use production config on Render, development locally
+config_mode = os.getenv('FLASK_ENV', 'development')
+if config_mode == 'production' or os.getenv('RENDER'):
+    app = create_app('production')
+else:
+    app = create_app('development')
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=5000)
