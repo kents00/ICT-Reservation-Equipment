@@ -165,6 +165,13 @@ def create_app(config_name='development'):
         """Health check endpoint to verify API is running"""
         return {'status': 'ok', 'message': 'API is running'}, 200
 
+    # Default route - redirect to admin login
+    @app.route('/')
+    def index():
+        """Redirect to admin login by default"""
+        from flask import redirect
+        return redirect('/admin/login')
+
     # Admin dashboard routes using templates
     @app.route('/admin/login')
     def admin_login():
