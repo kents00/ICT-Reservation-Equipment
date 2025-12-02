@@ -5,11 +5,12 @@ async function loadDashboardStats() {
     const token = localStorage.getItem('access_token');
 
     if (!token) {
-        console.error('No access token found');
+        console.error('❌ No access token found');
         return;
     }
 
     try {
+        console.log('🔄 [DASHBOARD] Loading stats from:', `${API_BASE_URL}/admin/dashboard/stats`);
         const response = await fetch(`${API_BASE_URL}/admin/dashboard/stats`, {
             method: 'GET',
             headers: {
@@ -20,8 +21,7 @@ async function loadDashboardStats() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Token expired or invalid
-                console.error('Unauthorized - redirecting to login');
+                console.error('❌ Unauthorized - redirecting to login');
                 window.location.href = '/admin/login';
                 return;
             }
@@ -29,9 +29,13 @@ async function loadDashboardStats() {
         }
 
         const data = await response.json();
+        console.log('✅ [DASHBOARD] API Response received:');
+        console.log('   Equipment:', data.equipment);
+        console.log('   Maintenance Count:', data.equipment?.in_maintenance);
+        console.log('   Full Response:', data);
         updateDashboardUI(data);
     } catch (error) {
-        console.error('Error loading dashboard stats:', error);
+        console.error('❌ Error loading dashboard stats:', error);
         // Show default/cached data or error message
     }
 }
@@ -40,28 +44,44 @@ async function loadDashboardStats() {
  * Update dashboard UI with fetched data
  */
 function updateDashboardUI(data) {
+    console.log('📊 [DASHBOARD] Updating UI...');
+
     // Update equipment stats
     if (data.equipment) {
+        console.log('🔍 [EQUIPMENT] Processing equipment data:');
         const totalEl = document.getElementById('total-equipment');
         const availableEl = document.getElementById('available-equipment');
         const reservedEl = document.getElementById('reserved-equipment');
         const maintenanceEl = document.getElementById('maintenance-equipment');
 
-        if (totalEl) totalEl.textContent = data.equipment.total;
-        if (availableEl) availableEl.textContent = data.equipment.available;
-        if (reservedEl) reservedEl.textContent = data.equipment.reserved;
-        if (maintenanceEl) maintenanceEl.textContent = data.equipment.in_maintenance;
+        console.log('   Elements found:');
+        console.log('   - total-equipment:', !!totalEl, totalEl?.id);
+        console.log('   - available-equipment:', !!availableEl, availableEl?.id);
+        console.log('   - reserved-equipment:', !!reservedEl, reservedEl?.id);
+        console.log('   - maintenance-equipment:', !!maintenanceEl, maintenanceEl?.id);
+
+        if (totalEl) {
+            totalEl.textContent = data.equipment.total;
+            console.log('   ✓ Set total-equipment to:', data.equipment.total);
+        }
+        if (availableEl) {
+            availableEl.textContent = data.equipment.available;
+            console.log('   ✓ Set available-equipment to:', data.equipment.available);
+        }
+        if (maintenanceEl) {
+            maintenanceEl.textContent = data.equipment.in_maintenance;
+            console.log('   ✓ Set maintenance-equipment to:', data.equipment.in_maintenance);
+        }
 
         // Update percentages
         const total = data.equipment.total;
         if (total > 0) {
             const availablePercent = Math.round((data.equipment.available / total) * 100);
-            const reservedPercent = Math.round((data.equipment.reserved / total) * 100);
             const maintenancePercent = Math.round((data.equipment.in_maintenance / total) * 100);
+            console.log('   Percentages: Available=' + availablePercent + '%, Maintenance=' + maintenancePercent + '%');
 
             // Update percentage displays if they exist
             updateStatPercentage(availableEl, availablePercent, 'available');
-            updateStatPercentage(reservedEl, reservedPercent, 'reserved');
             updateStatPercentage(maintenanceEl, maintenancePercent, 'maintenance');
         }
 
@@ -72,16 +92,41 @@ function updateDashboardUI(data) {
         updateChartLegend(data.equipment);
     }
 
-    // Update reservations chart
+    // Update reservations chart and approved reservations stat
     if (data.reservations) {
-        console.log('Reservations:', data.reservations);
+        console.log('📋 [RESERVATIONS] Data:', data.reservations);
         updateReservationsChart(data.reservations);
+
+        // Update approved reservations count in the "Reserved" stat card
+        const approvedEl = document.getElementById('reserved-equipment');
+        if (approvedEl) {
+            approvedEl.textContent = data.reservations.approved || 0;
+            console.log('   ✓ Set reserved-equipment (approved) to:', data.reservations.approved || 0);
+            // Update the stat-change text to show approval rate
+            const statCard = approvedEl.closest('.stat-card');
+            if (statCard) {
+                const changeSpan = statCard.querySelector('.stat-change');
+                if (changeSpan) {
+                    const total = data.reservations.total || 0;
+                    const approved = data.reservations.approved || 0;
+                    if (total > 0) {
+                        const approvalRate = Math.round((approved / total) * 100);
+                        changeSpan.textContent = `${approvalRate}% approval rate`;
+                        console.log('   ✓ Set approval rate to:', approvalRate + '%');
+                    } else {
+                        changeSpan.textContent = 'No reservations';
+                    }
+                }
+            }
+        }
     }
 
     // Update users data
     if (data.users) {
-        console.log('Users:', data.users);
+        console.log('👥 [USERS] Data:', data.users);
     }
+
+    console.log('✅ [DASHBOARD] UI update complete\n');
 }
 
 /**
@@ -317,5 +362,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Refresh stats every 30 seconds
         setInterval(loadDashboardStats, 30000);
+
+        // Listen for equipment status changes (real-time updates from equipment edit page)
+        window.addEventListener('equipmentStatusChanged', function (e) {
+            console.log('Equipment status changed:', e.detail);
+            loadDashboardStats(); // Reload dashboard stats immediately
+        });
+
+        // Also listen for cross-tab localStorage changes (when equipment is updated in another tab)
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'equipmentStatusUpdate') {
+                console.log('Equipment status updated in another admin tab');
+                loadDashboardStats(); // Reload dashboard stats
+            }
+        });
     }
 });

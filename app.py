@@ -17,20 +17,32 @@ def create_app(config_name='development'):
     """Create and configure Flask application"""
     app = Flask(__name__)
 
+    # Get database URL and handle postgres:// to postgresql:// conversion
+    database_url = os.getenv(
+        'DATABASE_URL', 'sqlite:///equipment_reservation.db')
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
     # Configuration
     if config_name == 'development':
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-            'DATABASE_URL',
-            'sqlite:///equipment_reservation.db'
-        )
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        # SQLite configuration for WSL compatibility
-        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-            'connect_args': {
-                'timeout': 30,
-                'check_same_thread': False
+
+        # Database-specific engine options
+        if database_url.startswith('sqlite'):
+            # SQLite configuration for WSL compatibility
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                'connect_args': {
+                    'timeout': 30,
+                    'check_same_thread': False
+                }
             }
-        }
+        else:
+            # PostgreSQL/other databases configuration
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                'pool_pre_ping': True,
+                'pool_recycle': 300,
+            }
         app.config['JWT_SECRET_KEY'] = os.getenv(
             'JWT_SECRET_KEY', 'dev-secret-key')
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
@@ -61,8 +73,26 @@ def create_app(config_name='development'):
         app.config['MAIL_SUPPRESS_SEND'] = True
 
     elif config_name == 'production':
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+        # Database-specific engine options for production
+        if database_url.startswith('sqlite'):
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                'connect_args': {
+                    'timeout': 30,
+                    'check_same_thread': False
+                }
+            }
+        else:
+            # PostgreSQL/other databases configuration
+            app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+                'pool_pre_ping': True,
+                'pool_recycle': 300,
+                'pool_size': 10,
+                'max_overflow': 20
+            }
+
         app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 
@@ -92,12 +122,12 @@ def create_app(config_name='development'):
     jwt.init_app(app)
     socketio.init_app(app, cors_allowed_origins="*")
 
-    # Configure SQLite for better WSL compatibility
-    if config_name == 'development':
+    # Configure SQLite for better WSL compatibility (only for SQLite databases)
+    if config_name == 'development' and database_url.startswith('sqlite'):
         @app.before_request
         def configure_sqlite():
             """Configure SQLite for WSL compatibility"""
-            from sqlalchemy import event, text
+            from sqlalchemy import event
             from sqlalchemy.engine import Engine
 
             @event.listens_for(Engine, "connect", once=True)

@@ -312,6 +312,8 @@ async function handleEquipmentSubmit(e) {
 
             const data = await response.json();
             console.log('Equipment updated:', data);
+            // Broadcast equipment status change for real-time dashboard updates
+            broadcastEquipmentStatusChange(equipmentId, formData.get('status'));
             showSuccessModal(formData.get('name'));
         } catch (error) {
             console.error('Error updating equipment:', error);
@@ -361,6 +363,8 @@ async function handleEquipmentSubmit(e) {
             }
 
             await response.json();
+            // Broadcast equipment status change for real-time dashboard updates
+            broadcastEquipmentStatusChange(equipmentId, equipmentData.status);
             showSuccessModal(equipmentData.name);
         } catch (error) {
             console.error('Error updating equipment:', error);
@@ -566,3 +570,31 @@ function removeCurrentImage() {
         removeImageFlag.value = 'true';
     }
 }
+
+/**
+ * Broadcast equipment status change to other admin pages
+ * This triggers real-time dashboard updates when equipment status changes
+ */
+function broadcastEquipmentStatusChange(equipmentId, status) {
+    // Dispatch custom event for same-window listeners
+    const event = new CustomEvent('equipmentStatusChanged', {
+        detail: {
+            equipmentId: equipmentId,
+            status: status,
+            timestamp: new Date().toISOString()
+        }
+    });
+    window.dispatchEvent(event);
+
+    // Also broadcast via localStorage for cross-tab communication
+    try {
+        localStorage.setItem('equipmentStatusUpdate', JSON.stringify({
+            equipmentId: equipmentId,
+            status: status,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        console.warn('localStorage not available:', e);
+    }
+}
+

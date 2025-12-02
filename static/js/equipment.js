@@ -285,3 +285,20 @@ function escapeHtml(unsafe) {
 function goToEditEquipment(equipmentId) {
     window.location.href = `/admin/edit-equipment.html?equipment_id=${equipmentId}`;
 }
+
+/**
+ * Listen for equipment status changes from other admin pages
+ * This ensures the equipment list updates in real-time when status changes elsewhere
+ */
+window.addEventListener('equipmentStatusChanged', function (e) {
+    console.log('Equipment status changed, reloading equipment list:', e.detail);
+    loadEquipment(); // Reload the equipment list
+});
+
+// Also listen for cross-tab localStorage changes
+window.addEventListener('storage', function (e) {
+    if (e.key === 'equipmentStatusUpdate') {
+        console.log('Equipment status updated in another tab, reloading list');
+        loadEquipment(); // Reload the equipment list
+    }
+});
