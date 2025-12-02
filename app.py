@@ -96,6 +96,13 @@ def create_app(config_name='development'):
         app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 
+        # File upload configuration for production
+        app.config['UPLOAD_FOLDER'] = os.path.join(
+            app.root_path, 'static', 'uploads', 'equipment')
+        app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
+        app.config['ALLOWED_EXTENSIONS'] = {
+            'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
         # Email configuration for production
         app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
         app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
