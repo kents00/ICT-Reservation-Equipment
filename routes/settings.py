@@ -8,6 +8,7 @@ from models import User, UserRole, SystemSettings
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
+import base64
 
 settings_bp = Blueprint('settings', __name__)
 
@@ -28,38 +29,24 @@ def allowed_file(filename):
 
 
 def save_user_image(file):
-    """Save uploaded user profile image and return the URL path"""
+    """Save uploaded user profile image as base64 and return the encoded data"""
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # Add timestamp to make filename unique
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        unique_filename = f"{timestamp}_{filename}"
-
-        # Ensure upload directory exists
-        upload_folder = os.path.join(
-            current_app.root_path, 'static', 'uploads', 'users')
-        os.makedirs(upload_folder, exist_ok=True)
-
-        # Save file
-        filepath = os.path.join(upload_folder, unique_filename)
-        file.save(filepath)
-
-        # Return relative URL path
-        return f"/static/uploads/users/{unique_filename}"
+        try:
+            # Read file data and encode as base64
+            file_data = file.read()
+            image_base64 = base64.b64encode(file_data).decode('utf-8')
+            return image_base64
+        except Exception as e:
+            print(f"Error encoding image: {e}")
+            return None
     return None
 
 
 def delete_user_image(image_url):
-    """Delete user profile image file from filesystem"""
-    if image_url and image_url.startswith('/static/uploads/users/'):
-        try:
-            filename = image_url.split('/')[-1]
-            filepath = os.path.join(
-                current_app.root_path, 'static', 'uploads', 'users', filename)
-            if os.path.exists(filepath):
-                os.remove(filepath)
-        except Exception as e:
-            print(f"Error deleting user image: {e}")
+    """Delete user profile image file from filesystem (legacy - no longer needed with base64)"""
+    # This function is kept for backwards compatibility but doesn't do anything
+    # since images are now stored as base64 in the database
+    pass
 
 
 def get_or_create_settings():
@@ -195,11 +182,12 @@ def update_admin_profile():
         # Check for profile image upload
         profile_image = request.files.get('profile_image')
         if profile_image:
-            # Delete old image if exists
-            if admin.image_url:
-                delete_user_image(admin.image_url)
-            # Save new image
-            admin.image_url = save_user_image(profile_image)
+            # Save new image as base64
+            image_base64 = save_user_image(profile_image)
+            if image_base64:
+                admin.image_data = base64.b64decode(image_base64)
+                # Clear the old file-based URL
+                admin.image_url = None
 
         # Get data from form if files present, otherwise from JSON
         if request.files or request.form:
@@ -268,3 +256,24 @@ def update_admin_profile():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Failed to update admin profile: {str(e)}'}), 500
+
+
+@settings_bp.route('/admin-profile/image/<user_id>', methods=['GET'])
+def get_admin_profile_image(user_id):
+    """Get admin profile image as base64 data URL"""
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        # Return image as base64 data URL
+        if user.image_data:
+            image_base64 = base64.b64encode(user.image_data).decode('utf-8')
+            return jsonify({
+                'image': f'data:image/jpeg;base64,{image_base64}'
+            }), 200
+        else:
+            return jsonify({'image': None}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to fetch image: {str(e)}'}), 500

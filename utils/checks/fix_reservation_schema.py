@@ -67,7 +67,7 @@ try:
                     print(f"  ✓ Column already exists: {col_name}")
                 else:
                     print(f"  ! Error adding {col_name}: {e}")
-        
+
         conn.commit()
         print("\n✓ Schema changes committed")
     else:
@@ -81,7 +81,8 @@ try:
         ORDER BY ordinal_position
     """)
     final_cols = cur.fetchall()
-    print(f"\n✓ Final reservation table structure ({len(final_cols)} columns):")
+    print(
+        f"\n✓ Final reservation table structure ({len(final_cols)} columns):")
     for col_name, data_type in final_cols:
         print(f"  - {col_name}: {data_type}")
 

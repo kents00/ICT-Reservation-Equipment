@@ -54,8 +54,10 @@ class User(db.Model):
     # Bachelor of Technology and Livelihood Education in Home Economics
     # Increased length for longer course names
     department = db.Column(db.String(150))
-    # User profile image path
+    # User profile image path (legacy, kept for backwards compatibility)
     image_url = db.Column(db.String(500), nullable=True)
+    # User profile image stored as base64 (for persistent storage on Render)
+    image_data = db.Column(db.LargeBinary, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -84,6 +86,7 @@ class User(db.Model):
 
     def to_dict(self):
         """Convert user to dictionary representation"""
+        import base64
         result = {
             'id': self.id,
             'username': self.username,
@@ -100,6 +103,10 @@ class User(db.Model):
             'is_active': self.is_active,
             'two_factor_enabled': self.two_factor_enabled
         }
+        # Include base64 image if available
+        if self.image_data:
+            image_base64 = base64.b64encode(self.image_data).decode('utf-8')
+            result['image_base64'] = f'data:image/jpeg;base64,{image_base64}'
         # Include student_id if user is a student
         if self.role == UserRole.STUDENT:
             result['student_id'] = self.student_id

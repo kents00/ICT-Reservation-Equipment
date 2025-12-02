@@ -140,8 +140,9 @@ function populateAdminFields(admin) {
     if (phoneInput) phoneInput.value = admin.phone || '';
 
     // Display profile image or placeholder
-    if (admin.image_url && profilePreview && profilePlaceholder) {
-        profilePreview.src = admin.image_url;
+    if ((admin.image_base64 || admin.image_url) && profilePreview && profilePlaceholder) {
+        // Use base64 image if available, otherwise fall back to image_url
+        profilePreview.src = admin.image_base64 || admin.image_url;
         profilePreview.style.display = 'block';
         profilePlaceholder.style.display = 'none';
     } else if (profilePlaceholder && profilePreview) {

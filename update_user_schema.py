@@ -74,8 +74,8 @@ try:
     admin_id = str(uuid.uuid4())
     admin_pass = generate_password_hash('password123')
     cur.execute("""
-        INSERT INTO "user" 
-        (id, username, email, password_hash, first_name, middle_name, last_name, 
+        INSERT INTO "user"
+        (id, username, email, password_hash, first_name, middle_name, last_name,
          phone, department, role, is_active, image_url)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
@@ -89,8 +89,8 @@ try:
     student_id = str(uuid.uuid4())
     student_pass = generate_password_hash('password123')
     cur.execute("""
-        INSERT INTO "user" 
-        (id, username, email, password_hash, first_name, middle_name, last_name, 
+        INSERT INTO "user"
+        (id, username, email, password_hash, first_name, middle_name, last_name,
          student_id, phone, department, role, is_active, image_url)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
