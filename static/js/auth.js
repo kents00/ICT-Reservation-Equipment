@@ -3,7 +3,8 @@
  * Handles login checks, token verification, logout, and remember me functionality
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Dynamically set API base URL based on environment (local dev or production)
+const API_BASE_URL = window.location.origin + '/api';
 const REMEMBER_ME_KEY = 'remember_me_enabled';
 const REMEMBER_ME_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
