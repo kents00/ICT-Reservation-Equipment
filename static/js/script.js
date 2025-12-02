@@ -1,3 +1,9 @@
+// Ensure API_BASE_URL is available globally
+// It should be set by auth.js, but provide fallback for safety
+if (!window.API_BASE_URL) {
+    window.API_BASE_URL = window.location.origin + '/api';
+}
+
 // Login Page Functions
 function togglePassword() {
     const passwordField = document.getElementById('password');
@@ -90,10 +96,10 @@ function handleLogin() {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Signing in...';
 
-    console.log('Sending login request to:', `${API_BASE_URL}/auth/login`);
+    console.log('Sending login request to:', `${window.API_BASE_URL}/auth/login`);
 
     // Call Flask API
-    fetch(`${API_BASE_URL}/auth/login`, {
+    fetch(`${window.API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

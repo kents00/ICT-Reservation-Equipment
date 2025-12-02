@@ -4,7 +4,8 @@
  */
 
 // Dynamically set API base URL based on environment (local dev or production)
-const API_BASE_URL = window.location.origin + '/api';
+// Use window.API_BASE_URL to make it globally accessible to other scripts
+window.API_BASE_URL = window.location.origin + '/api';
 const REMEMBER_ME_KEY = 'remember_me_enabled';
 const REMEMBER_ME_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
@@ -58,7 +59,7 @@ async function checkAuthentication() {
  */
 async function verifyTokenWithBackend(token) {
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+        const response = await fetch(`${window.API_BASE_URL}/auth/profile`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -184,7 +185,7 @@ function makeAuthenticatedRequest(endpoint, options = {}) {
         ...options.headers
     };
 
-    return fetch(`${API_BASE_URL}${endpoint}`, {
+    return fetch(`${window.API_BASE_URL}${endpoint}`, {
         ...options,
         headers
     })
@@ -469,7 +470,7 @@ async function submit2FACode() {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/verify-2fa`, {
+        const response = await fetch(`${window.API_BASE_URL}/auth/verify-2fa`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -551,7 +552,7 @@ async function resend2FACode() {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/resend-2fa`, {
+        const response = await fetch(`${window.API_BASE_URL}/auth/resend-2fa`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
