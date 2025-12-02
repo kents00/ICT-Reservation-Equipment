@@ -33,15 +33,16 @@ def test_database_connection():
     """Test database connection"""
     print("\nTesting database connection...")
     print("="*60)
-    
+
     try:
         import psycopg2
-        
-        database_url = os.getenv('DATABASE_URL', 'sqlite:///equipment_reservation.db')
+
+        database_url = os.getenv(
+            'DATABASE_URL', 'sqlite:///equipment_reservation.db')
         if not database_url or database_url.startswith('sqlite'):
             print("⚠ Using SQLite (local development)")
             return True
-        
+
         # Test PostgreSQL connection directly
         print(f"Connecting to: {database_url[:50]}...")
         conn = psycopg2.connect(database_url)
@@ -60,6 +61,8 @@ def test_database_connection():
         print("  [ ] PostgreSQL/Neon database exists")
         print("  [ ] Network connectivity is good")
         return False
+
+
 def initialize_database():
     """Initialize database tables"""
     print("\nInitializing database...")
