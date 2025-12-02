@@ -34,7 +34,7 @@ class ReservationStatus(str, Enum):
 
 class User(db.Model):
     """User model for both Admin and Student"""
-    __tablename__ = 'users'
+    __tablename__ = 'user'
 
     id = db.Column(db.String(36), primary_key=True,
                    default=lambda: str(uuid.uuid4()))
@@ -125,7 +125,7 @@ class Equipment(db.Model):
     # Equipment image path
     image_url = db.Column(db.String(500), nullable=True)
     created_by = db.Column(
-        db.String(36), db.ForeignKey('users.id'), nullable=False)
+        db.String(36), db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -165,12 +165,12 @@ class Equipment(db.Model):
 
 class Reservation(db.Model):
     """Reservation model"""
-    __tablename__ = 'reservations'
+    __tablename__ = 'reservation'
 
     id = db.Column(db.String(36), primary_key=True,
                    default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey(
-        'users.id'), nullable=False, index=True)
+        'user.id'), nullable=False, index=True)
     equipment_id = db.Column(db.String(36), db.ForeignKey(
         'equipment.id'), nullable=False, index=True)
     status = db.Column(
@@ -233,12 +233,12 @@ class QRCodeScan(db.Model):
     equipment_id = db.Column(db.String(36), db.ForeignKey(
         'equipment.id'), nullable=False, index=True)
     reservation_id = db.Column(db.String(36), db.ForeignKey(
-        'reservations.id'), nullable=True, index=True)
+        'reservation.id'), nullable=True, index=True)
     # 'check_in' or 'check_out'
     scan_type = db.Column(db.String(20), nullable=False)
     scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
     scanned_by = db.Column(
-        db.String(36), db.ForeignKey('users.id'), nullable=True)
+        db.String(36), db.ForeignKey('user.id'), nullable=True)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     notes = db.Column(db.Text)
@@ -263,14 +263,14 @@ class QRCodeScan(db.Model):
 
 class Notification(db.Model):
     """Notifications for users"""
-    __tablename__ = 'notifications'
+    __tablename__ = 'notification'
 
     id = db.Column(db.String(36), primary_key=True,
                    default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey(
-        'users.id'), nullable=False, index=True)
+        'user.id'), nullable=False, index=True)
     reservation_id = db.Column(db.String(36), db.ForeignKey(
-        'reservations.id'), nullable=True)
+        'reservation.id'), nullable=True)
     title = db.Column(db.String(200), nullable=False)
     message = db.Column(db.Text, nullable=False)
     # 'approval', 'rejection', 'cancellation', 'expiry'
