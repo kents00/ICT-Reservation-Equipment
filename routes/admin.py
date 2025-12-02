@@ -314,6 +314,7 @@ def update_user(user_id):
         return jsonify({'error': 'User not found'}), 404
 
     # Check for profile image upload
+    profile_image = request.files.get('profile_image')
     if profile_image:
         # Save new image as base64
         image_base64 = save_user_image(profile_image)
