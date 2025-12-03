@@ -434,60 +434,99 @@ def toggle_2fa():
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     """Request password reset - sends verification code to email"""
-    data = request.get_json()
+    print("\n" + "=" * 100)
+    print("[FORGOT PASSWORD] REQUEST RECEIVED")
+    print("=" * 100)
 
-    if not data.get('email'):
-        return jsonify({'error': 'Email is required'}), 400
+    try:
+        data = request.get_json()
+        print(f"[FORGOT PASSWORD] Request data received")
 
-    # Find user by email
-    user = User.query.filter_by(email=data['email']).first()
+        if not data.get('email'):
+            print("[FORGOT PASSWORD] ❌ Email is required but not provided")
+            return jsonify({'error': 'Email is required'}), 400
 
-    if not user:
-        # Don't reveal if email exists or not
-        return jsonify({
-            'success': True,
-            'message': 'If the email exists, a verification code has been sent',
-            # Dummy token for security
-            'reset_token': secrets.token_urlsafe(32)
-        }), 200
+        email = data.get('email').lower().strip()
+        print(f"[FORGOT PASSWORD] Looking for user with email: {email}")
 
-    # Generate verification code
-    code, expiry = create_verification_code_for_user(
-        user.id, expiry_minutes=10)
+        # Find user by email
+        user = User.query.filter_by(email=email).first()
 
-    if code:
-        try:
-            # Create a temporary reset token
-            reset_token = secrets.token_urlsafe(32)
-
-            # Store reset token in user's verification_code field temporarily
-            # (we'll validate it when verifying the code)
-            user.verification_code = f"{code}:{reset_token}"
-            user.verification_code_expiry = expiry
-            user.verification_attempts = 0
-            db.session.commit()
-
-            # Send verification email
-            print("\n" + "=" * 80)
-            print(f"[PASSWORD RESET] User: {user.username} ({user.email})")
-            print(f"[PASSWORD RESET] ⚠️  VERIFICATION CODE: {code}")
-            print("[PASSWORD RESET] Valid for: 10 minutes")
-            print("=" * 80 + "\n")
-
-            send_password_reset_email(user, code, expiry_minutes=10)
-
+        if not user:
+            # Don't reveal if email exists or not
+            print(
+                f"[FORGOT PASSWORD] ⚠️  User not found with email: {email} (returning generic success for security)")
             return jsonify({
                 'success': True,
-                'message': 'Verification code sent to your email',
-                'reset_token': reset_token
+                'message': 'If the email exists, a verification code has been sent',
+                # Dummy token for security
+                'reset_token': secrets.token_urlsafe(32)
             }), 200
-        except Exception as e:
-            print(f"[PASSWORD RESET] Error: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return jsonify({'error': 'Failed to send verification code'}), 500
-    else:
-        return jsonify({'error': 'Failed to generate verification code'}), 500
+
+        print(f"[FORGOT PASSWORD] ✓ User found: {user.username}")
+
+        # Generate verification code
+        print(
+            f"[FORGOT PASSWORD] Generating verification code for user: {user.id}")
+        code, expiry = create_verification_code_for_user(
+            user.id, expiry_minutes=10)
+
+        if code:
+            try:
+                print(
+                    f"[FORGOT PASSWORD] ✓ Verification code generated: {code}")
+                print(f"[FORGOT PASSWORD] Code expires at: {expiry}")
+
+                # Create a temporary reset token
+                reset_token = secrets.token_urlsafe(32)
+                print(
+                    f"[FORGOT PASSWORD] Reset token generated (length: {len(reset_token)})")
+
+                # Store reset token in user's verification_code field temporarily
+                # (we'll validate it when verifying the code)
+                user.verification_code = f"{code}:{reset_token}"
+                user.verification_code_expiry = expiry
+                user.verification_attempts = 0
+                db.session.commit()
+                print(f"[FORGOT PASSWORD] ✓ Verification code stored in database")
+
+                # Send verification email
+                print("\n" + "=" * 100)
+                print(f"[PASSWORD RESET] SENDING EMAIL")
+                print(f"[PASSWORD RESET] To: {user.email}")
+                print(f"[PASSWORD RESET] User: {user.username}")
+                print(f"[PASSWORD RESET] VERIFICATION CODE: {code}")
+                print(
+                    f"[PASSWORD RESET] Valid for: 10 minutes (until {expiry})")
+                print("=" * 100 + "\n")
+
+                send_password_reset_email(user, code, expiry_minutes=10)
+                print(f"[FORGOT PASSWORD] ✓ Email sending completed")
+
+                print(
+                    f"[FORGOT PASSWORD] ✓ SUCCESS - Returning response to frontend")
+                print("=" * 100 + "\n")
+
+                return jsonify({
+                    'success': True,
+                    'message': 'Verification code sent to your email',
+                    'reset_token': reset_token
+                }), 200
+            except Exception as e:
+                print(f"[PASSWORD RESET] ❌ ERROR: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                print("=" * 100 + "\n")
+                return jsonify({'error': 'Failed to send verification code'}), 500
+        else:
+            print(f"[FORGOT PASSWORD] ❌ Failed to generate verification code")
+            return jsonify({'error': 'Failed to generate verification code'}), 500
+    except Exception as e:
+        print(f"[FORGOT PASSWORD] ❌ UNEXPECTED ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print("=" * 100 + "\n")
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 
 @auth_bp.route('/verify-reset-code', methods=['POST'])

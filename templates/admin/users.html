@@ -41,6 +41,15 @@
                 <option value="pending">Pending</option>
                 <!-- Add more statuses as needed -->
             </select>
+            <a href="{{ url_for('admin_add_student') }}" class="btn btn-primary"
+                style="padding: 10px 20px; white-space: nowrap;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                    style="margin-right: 8px; display: inline; vertical-align: middle;">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Student
+            </a>
         </div>
         <div class="table-container">
             <table class="data-table">

@@ -25,7 +25,7 @@ try:
         WHERE table_schema = 'public'
         ORDER BY table_name
     """)
-    
+
     tables = [row[0] for row in cur.fetchall()]
     print(f"\n✓ Found {len(tables)} tables in database:")
     for table in tables:
@@ -35,13 +35,13 @@ try:
     print("\n" + "="*60)
     print("CHECKING FOR DUPLICATES")
     print("="*60)
-    
+
     duplicates = {
         'user': ['user', 'users'],
         'reservation': ['reservation', 'reservations'],
         'notification': ['notification', 'notifications']
     }
-    
+
     found_duplicates = False
     for base_name, variants in duplicates.items():
         found = [v for v in variants if v in tables]

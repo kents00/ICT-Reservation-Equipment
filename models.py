@@ -65,7 +65,7 @@ class User(db.Model):
 
     # Two-Factor Authentication fields
     two_factor_enabled = db.Column(db.Boolean, default=False)
-    verification_code = db.Column(db.String(10))
+    verification_code = db.Column(db.String(255))
     verification_code_expiry = db.Column(db.DateTime)
     verification_attempts = db.Column(db.Integer, default=0)
     verification_locked_until = db.Column(db.DateTime)

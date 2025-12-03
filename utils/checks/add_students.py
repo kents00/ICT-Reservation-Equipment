@@ -62,7 +62,7 @@ try:
 
     # Default password for new students
     default_password = generate_password_hash('password123')
-    
+
     added_count = 0
     failed_count = 0
 
@@ -71,25 +71,31 @@ try:
     for student in students:
         try:
             student_uuid = str(uuid.uuid4())
-            
+
             # Check if email already exists
-            cur.execute('SELECT id FROM "user" WHERE email = %s', (student['email'],))
+            cur.execute('SELECT id FROM "user" WHERE email = %s',
+                        (student['email'],))
             if cur.fetchone():
-                print(f"⚠ SKIPPED: {student['username']} ({student['email']}) - Email already exists")
+                print(
+                    f"⚠ SKIPPED: {student['username']} ({student['email']}) - Email already exists")
                 failed_count += 1
                 continue
-            
+
             # Check if username already exists
-            cur.execute('SELECT id FROM "user" WHERE username = %s', (student['username'],))
+            cur.execute('SELECT id FROM "user" WHERE username = %s',
+                        (student['username'],))
             if cur.fetchone():
-                print(f"⚠ SKIPPED: {student['username']} - Username already exists")
+                print(
+                    f"⚠ SKIPPED: {student['username']} - Username already exists")
                 failed_count += 1
                 continue
-            
+
             # Check if student_id already exists
-            cur.execute('SELECT id FROM "user" WHERE student_id = %s', (student['student_id'],))
+            cur.execute('SELECT id FROM "user" WHERE student_id = %s',
+                        (student['student_id'],))
             if cur.fetchone():
-                print(f"⚠ SKIPPED: {student['username']} - Student ID already exists")
+                print(
+                    f"⚠ SKIPPED: {student['username']} - Student ID already exists")
                 failed_count += 1
                 continue
 
@@ -113,8 +119,9 @@ try:
                 'student',
                 True
             ))
-            
-            print(f"✓ ADDED: {student['username']} ({student['email']}) - ID: {student['student_id']}")
+
+            print(
+                f"✓ ADDED: {student['username']} ({student['email']}) - ID: {student['student_id']}")
             added_count += 1
 
         except Exception as e:
@@ -122,7 +129,7 @@ try:
             failed_count += 1
 
     conn.commit()
-    
+
     # Display summary
     print("\n" + "="*60)
     print("SUMMARY")
@@ -141,12 +148,13 @@ try:
         ORDER BY created_at DESC
         LIMIT 10
     """)
-    
+
     records = cur.fetchall()
     print(f"\n✓ Current students in database ({len(records)} total):")
     for record in records:
         username, email, student_id, first_name, last_name = record
-        print(f"  • {username} ({email}) - ID: {student_id} - {first_name} {last_name}")
+        print(
+            f"  • {username} ({email}) - ID: {student_id} - {first_name} {last_name}")
 
     cur.close()
     conn.close()

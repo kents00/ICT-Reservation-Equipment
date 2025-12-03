@@ -375,6 +375,86 @@ def update_user(user_id):
         return jsonify({'error': str(e)}), 500
 
 
+@admin_bp.route('/students/add', methods=['POST'])
+@jwt_required()
+def add_student():
+    """Create a new student account (Admin only)"""
+    admin_id = get_jwt_identity()
+
+    if not check_admin(admin_id):
+        return jsonify({'error': 'Admin access required'}), 403
+
+    # Check if request has form data or JSON
+    if request.form:
+        data = request.form.to_dict()
+    elif request.is_json:
+        data = request.get_json()
+    else:
+        return jsonify({'error': 'Invalid request format'}), 400
+
+    # Validate required fields
+    required_fields = ['first_name', 'last_name', 'username',
+                       'email', 'password', 'student_id', 'department', 'status']
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({'error': f'Missing required field: {field}'}), 400
+
+    # Check if username already exists
+    existing_user = User.query.filter_by(username=data['username']).first()
+    if existing_user:
+        return jsonify({'error': 'Username already exists'}), 409
+
+    # Check if email already exists
+    existing_email = User.query.filter_by(email=data['email']).first()
+    if existing_email:
+        return jsonify({'error': 'Email already exists'}), 409
+
+    # Check password requirements
+    if len(data['password']) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters long'}), 400
+
+    # Validate email format
+    if '@' not in data['email'] or '.' not in data['email']:
+        return jsonify({'error': 'Invalid email format'}), 400
+
+    try:
+        # Handle profile image upload
+        image_data = None
+        profile_image = request.files.get('profile_image')
+        if profile_image and allowed_file(profile_image.filename):
+            file_data = profile_image.read()
+            image_data = file_data
+
+        # Create new student
+        new_student = User(
+            first_name=data['first_name'],
+            middle_name=data.get('middle_name', ''),
+            last_name=data['last_name'],
+            username=data['username'],
+            email=data['email'],
+            student_id=data['student_id'],
+            department=data['department'],
+            phone=data.get('phone', ''),
+            role=UserRole.STUDENT,
+            is_active=data['status'] == 'active',
+            image_data=image_data
+        )
+
+        # Set password using the set_password method for proper hashing
+        new_student.set_password(data['password'])
+
+        db.session.add(new_student)
+        db.session.commit()
+
+        return jsonify({
+            'message': 'Student created successfully',
+            'user': new_student.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @admin_bp.route('/users/<user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):

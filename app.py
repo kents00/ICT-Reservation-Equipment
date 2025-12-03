@@ -282,6 +282,11 @@ def create_app(config_name='development'):
         """Serve users management page"""
         return render_template('admin/users.html', active_section='users')
 
+    @app.route('/admin/users/add')
+    def admin_add_student():
+        """Serve add student page"""
+        return render_template('admin/add-student.html', active_section='users')
+
     @app.route('/admin/users/<user_id>/edit')
     def admin_edit_user(user_id):
         """Serve edit user page"""

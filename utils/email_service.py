@@ -12,44 +12,102 @@ mail = Mail()
 
 def send_async_email(app, msg):
     """Send email asynchronously"""
+    print(f"\n[EMAIL::SEND_ASYNC] Starting async email send")
+    print(f"[EMAIL::SEND_ASYNC] Recipients: {msg.recipients}")
+    print(f"[EMAIL::SEND_ASYNC] Subject: {msg.subject}")
+
     try:
         with app.app_context():
-            print(f"[EMAIL] Attempting to send email to: {msg.recipients}")
-            print(f"[EMAIL] Subject: {msg.subject}")
-            print(f"[EMAIL] Mail server: {app.config.get('MAIL_SERVER')}")
-            print(f"[EMAIL] Mail port: {app.config.get('MAIL_PORT')}")
-            print(f"[EMAIL] Mail username: {app.config.get('MAIL_USERNAME')}")
+            print(
+                f"[EMAIL::CONFIG] Mail server: {app.config.get('MAIL_SERVER')}")
+            print(f"[EMAIL::CONFIG] Mail port: {app.config.get('MAIL_PORT')}")
+            print(
+                f"[EMAIL::CONFIG] Mail username: {app.config.get('MAIL_USERNAME')}")
+            print(
+                f"[EMAIL::CONFIG] Mail use TLS: {app.config.get('MAIL_USE_TLS')}")
+            print(
+                f"[EMAIL::CONFIG] Mail suppress send: {app.config.get('MAIL_SUPPRESS_SEND', False)}")
+
+            if app.config.get('MAIL_SUPPRESS_SEND'):
+                print(
+                    f"[EMAIL::WARNING] ⚠️  MAIL_SUPPRESS_SEND is enabled - email will NOT be sent")
+
+            print(f"[EMAIL::ATTEMPT] Calling mail.send()...")
             mail.send(msg)
-            print(f"[EMAIL] ✓ Email sent successfully to: {msg.recipients}")
+            print(
+                f"[EMAIL::SUCCESS] ✓ Email sent successfully to: {msg.recipients}")
+            print(f"[EMAIL::SUCCESS] Subject: {msg.subject}\n")
     except OSError as e:
         # Network errors - common in development or when SMTP is unreachable
-        print(f"[EMAIL] ✗ Network error - email not sent: {str(e)}")
-        print(f"[EMAIL] ℹ️  Email was intended for: {msg.recipients}")
-        print(f"[EMAIL] ℹ️  Subject: {msg.subject}")
+        print(
+            f"[EMAIL::ERROR::NETWORK] ✗ Network error - email not sent: {str(e)}")
+        print(
+            f"[EMAIL::ERROR::NETWORK] ℹ️  Email was intended for: {msg.recipients}")
+        print(f"[EMAIL::ERROR::NETWORK] ℹ️  Subject: {msg.subject}")
+        print(
+            f"[EMAIL::ERROR::NETWORK] ℹ️  This usually means SMTP server is unreachable\n")
         # Don't print full traceback for network errors to reduce noise
     except Exception as e:
-        print(f"[EMAIL] ✗ Failed to send email: {str(e)}")
+        print(f"[EMAIL::ERROR::EXCEPTION] ✗ Failed to send email: {str(e)}")
+        print(
+            f"[EMAIL::ERROR::EXCEPTION] Exception type: {type(e).__name__}\n")
         import traceback
         traceback.print_exc()
 
 
-def send_email(subject, recipients, text_body, html_body):
-    """Send email with both text and HTML versions"""
+def send_email(subject, recipients, text_body, html_body, synchronous=False):
+    """Send email with both text and HTML versions
+
+    Args:
+        subject: Email subject
+        recipients: List of email recipients
+        text_body: Plain text version of email
+        html_body: HTML version of email
+        synchronous: If True, send immediately. If False, send in background thread
+
+    Returns:
+        bool: True if email was sent/queued successfully
+    """
+    print(f"\n{'='*100}")
+    print(f"[EMAIL::PREPARE] PREPARING EMAIL")
+    print(f"{'='*100}")
+    print(f"[EMAIL::PREPARE] Subject: {subject}")
+    print(f"[EMAIL::PREPARE] Recipients: {recipients}")
+    print(
+        f"[EMAIL::PREPARE] Mode: {'SYNCHRONOUS (immediate)' if synchronous else 'ASYNCHRONOUS (background thread)'}")
+    print(f"[EMAIL::PREPARE] Text body length: {len(text_body)} chars")
+    print(f"[EMAIL::PREPARE] HTML body length: {len(html_body)} chars")
+
     try:
         app = current_app._get_current_object()
-        print(f"[EMAIL] Preparing email: {subject}")
-        print(f"[EMAIL] Recipients: {recipients}")
+        print(f"[EMAIL::PREPARE] ✓ Got Flask app context")
 
         msg = Message(subject, recipients=recipients)
         msg.body = text_body
         msg.html = html_body
+        print(f"[EMAIL::PREPARE] ✓ Message object created")
 
-        # Send asynchronously
-        Thread(target=send_async_email, args=(app, msg)).start()
-        print(f"[EMAIL] Email thread started for: {subject}")
+        if synchronous:
+            # Send immediately (useful for critical emails like password reset)
+            print(f"[EMAIL::QUEUE] Sending SYNCHRONOUSLY (waiting for completion)...")
+            send_async_email(app, msg)
+            print(f"[EMAIL::QUEUE] ✓ Synchronous send completed")
+        else:
+            # Send in background thread
+            print(f"[EMAIL::QUEUE] Starting background thread for email...")
+            thread = Thread(target=send_async_email, args=(app, msg))
+            thread.daemon = True
+            thread.start()
+            print(
+                f"[EMAIL::QUEUE] ✓ Background thread started (thread name: {thread.name})")
+
+        print(f"[EMAIL::RESULT] ✓ Email prepared and queued successfully")
+        print(f"{'='*100}\n")
         return True
     except Exception as e:
-        print(f"[EMAIL] Error preparing email: {str(e)}")
+        print(f"[EMAIL::ERROR] ✗ Error preparing email: {str(e)}")
+        print(f"[EMAIL::ERROR] Exception type: {type(e).__name__}")
+        print(f"{'='*100}\n")
         import traceback
         traceback.print_exc()
         return False
@@ -398,12 +456,21 @@ Equipment Reservation System
     print("=" * 80 + "\n")
     # ============================================================================
 
-    # Attempt to send email, but don't fail if it doesn't work
-    email_sent = send_email(subject, [user.email], text_body, html_body)
+    # Send email synchronously for 2FA (critical for login)
+    try:
+        email_sent = send_email(
+            subject, [user.email], text_body, html_body, synchronous=True)
 
-    if not email_sent:
-        print("[2FA] ⚠️  Email delivery failed, but verification code is still valid")
-        print("[2FA] ℹ️  User can retrieve code from console logs above")
+        if not email_sent:
+            print(
+                "[2FA] ⚠️  Email delivery failed, but verification code is still valid")
+            print("[2FA] ℹ️  User can retrieve code from console logs above")
+        else:
+            print("[2FA] ✓ 2FA verification email sent successfully")
+    except Exception as e:
+        print(f"[2FA] ✗ Error sending 2FA email: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
 
 def send_password_reset_email(user, code, expiry_minutes=10):
@@ -494,10 +561,19 @@ Equipment Reservation System
     print("=" * 80 + "\n")
     # ============================================================================
 
-    # Attempt to send email, but don't fail if it doesn't work
-    email_sent = send_email(subject, [user.email], text_body, html_body)
+    # Send email synchronously for password reset (critical operation)
+    try:
+        email_sent = send_email(
+            subject, [user.email], text_body, html_body, synchronous=True)
 
-    if not email_sent:
+        if not email_sent:
+            print(
+                "[PASSWORD RESET] ⚠️  Email delivery failed, but verification code is still valid")
+            print("[PASSWORD RESET] ℹ️  User can retrieve code from console logs above")
+        else:
+            print("[PASSWORD RESET] ✓ Password reset email sent successfully")
+    except Exception as e:
         print(
-            "[PASSWORD RESET] ⚠️  Email delivery failed, but verification code is still valid")
-        print("[PASSWORD RESET] ℹ️  User can retrieve code from console logs above")
+            f"[PASSWORD RESET] ✗ Error sending password reset email: {str(e)}")
+        import traceback
+        traceback.print_exc()

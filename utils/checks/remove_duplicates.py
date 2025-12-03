@@ -30,12 +30,12 @@ try:
             # Check if table exists
             cur.execute("""
                 SELECT EXISTS (
-                    SELECT 1 FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
+                    SELECT 1 FROM information_schema.tables
+                    WHERE table_schema = 'public'
                     AND table_name = %s
                 )
             """, (table,))
-            
+
             exists = cur.fetchone()[0]
             if exists:
                 # Drop the table
@@ -51,14 +51,14 @@ try:
     print("\n" + "="*60)
     print("VERIFYING CLEANUP")
     print("="*60)
-    
+
     cur.execute("""
         SELECT table_name
         FROM information_schema.tables
         WHERE table_schema = 'public'
         ORDER BY table_name
     """)
-    
+
     tables = [row[0] for row in cur.fetchall()]
     print(f"\n✓ Remaining tables ({len(tables)}):")
     for table in tables:
